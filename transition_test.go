@@ -52,6 +52,11 @@ func TestTransitionCreate(t *testing.T) {
 
 	transitionID := "22"
 
+	fields := map[string]TransitionField{
+		"field": TransitionField{
+			Name: "fieldname",
+		}}
+
 	testMux.HandleFunc(testAPIEndpoint, func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "POST")
 		testRequestURL(t, r, testAPIEndpoint)
@@ -66,8 +71,11 @@ func TestTransitionCreate(t *testing.T) {
 		if payload.Transition.ID != transitionID {
 			t.Errorf("Expected %s to be in payload, got %s instead", transitionID, payload.Transition.ID)
 		}
+		if payload.Fields["field"] != fields["field"] {
+			t.Errorf("Expected fields to be in payload")
+		}
 	})
-	_, err := testClient.Transition.Create("123", transitionID)
+	_, err := testClient.Transition.Create("123", transitionID, fields)
 
 	if err != nil {
 		t.Error("Got error: %v", err)

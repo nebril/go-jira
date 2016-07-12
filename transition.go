@@ -22,12 +22,14 @@ type Transition struct {
 }
 
 type TransitionField struct {
-	Required bool `json:"required"`
+	Required bool   `json:"required"`
+	Name     string `json:"name"`
 }
 
 // CreatePayload is used for creating new issue transitions
 type CreateTransitionPayload struct {
-	Transition TransitionPayload `json:"transition"`
+	Transition TransitionPayload          `json:"transition"`
+	Fields     map[string]TransitionField `json:"fields"`
 }
 
 type TransitionPayload struct {
@@ -53,13 +55,14 @@ func (s *TransitionService) GetList(id string) ([]Transition, *Response, error) 
 // with given ID. It doesn't yet support anything else.
 //
 // JIRA API docs: https://docs.atlassian.com/jira/REST/latest/#api/2/issue-doTransition
-func (s *TransitionService) Create(ticketID, transitionID string) (*Response, error) {
+func (s *TransitionService) Create(ticketID, transitionID string, transitionFields map[string]TransitionField) (*Response, error) {
 	apiEndpoint := fmt.Sprintf("rest/api/2/issue/%s/transitions", ticketID)
 
 	payload := CreateTransitionPayload{
 		Transition: TransitionPayload{
 			ID: transitionID,
 		},
+		Fields: transitionFields,
 	}
 	req, err := s.client.NewRequest("POST", apiEndpoint, payload)
 	if err != nil {
